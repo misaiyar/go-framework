@@ -1,0 +1,24 @@
+hr{
+    margin-top: 8px;
+    margin-bottom: 8px
+}
+.show_more{
+    display:none;
+    color:#333;
+}
+.desc{
+    word-break: break-all;
+    word-wrap:break-word;
+}
+.color-gray{
+    color: gray;
+}
+.txt-left{
+    text-align: left;
+}
+.txt-normal{
+    font-size: 14px;
+}
+[v-cloak]{
+    display: none;
+}
