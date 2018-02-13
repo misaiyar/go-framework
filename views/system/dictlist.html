@@ -1,0 +1,224 @@
+<div id="dict_list">
+    <div class="content-wrapper">
+        <section class="content-header">
+            <h1>
+                <div class="btn-group">
+                    <button title="默认为管理员账户" type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" v-cloak>
+                      {{current.Description}}<span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                      <li v-for="item in DictList"><a v-bind:title="item.Key" v-bind:href="'/System/Index?type='+item.Key" v-cloak>{{item.Description}}</a></li>
+                    </ul>
+                </div>
+                <small>系统管理</small>
+            </h1>
+            <ol class="breadcrumb">
+                <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
+                <li><a href="#">系统管理</a></li>
+                <li class="active" v-cloak>{{current.Description}}</li>
+            </ol>
+        </section>
+        <section class="content">
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="box">
+                        <div class="box-header">
+                            <div class="search">
+                                <div class="form-inline" >
+                                    <div class="form-group">
+                                        <label for="">过滤:</label>
+                                        <input v-model="queryData.k" type="text" v-on:input="filter" class="form-control" placeholder="请输入字典值">
+                                    </div>
+                                    <a style="float: right;margin-right:20px" class="btn btn-info" v-on:click="adddict()">新增字典<i class="fa fa-plus-circle"></i></a>
+                                    <a v-if="current.Key && current.Key!=''" style="float: right;margin-right:20px" class="btn btn-info" v-on:click="addedit()" v-cloak>新增{{current.Description}}<i class="fa fa-plus-circle"></i></a>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="toolbar">
+                                <a style="margin-right:8px" v-on:click="delSelect" class="btn btn-sm btn-default">删除选中<i class="fa fa-remove"></i></a>
+                            </div>
+                        </div>
+                        <!-- /.box-header -->
+                        <div class="box-body table-responsive no-padding">
+                            <table class="table table-hover">
+                                <tr>
+                                    <th><input type="checkbox" v-model='allSelect' v-on:click='selectAll'></th>
+                                    <th v-cloak>{{current.Description}}</th>
+                                    <th>描述</th>
+                                    <th>添加时间</th>
+                                    <th>操作人</th>
+                                </tr>
+                                <tr v-for="(item,index) in List" v-cloak>
+                                    <td><input type="checkbox" v-bind:value="item.k" v-model="selected" v-on:click='selectOne'></td>
+                                    <td>{{ item.k }}</td>
+                                    <td>{{ item.d }}</td>
+                                    <td>{{ formatDate(item.at) }}</td>
+                                    <td>{{ item.opt }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <!-- /.box-body -->
+                        <div class="box-footer clearfix">
+                        
+                        </div>
+                    </div>
+                    <!-- /.box -->
+                </div>
+            </div>
+
+        </section>
+    </div>
+    <div id="modal-addDictPage" class="modal fade modal-form">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">添加字典</h4>
+                </div>
+                <div class="modal-body">
+                    <form id="form_add" role="form" method="POST">
+                        <table class="table table-bordered">
+                            <tbody>
+                            <tr>
+                                <td>标识</td>
+                                <td><input v-model="dictData.k" name="k" type="text" class="form-control" /></td>
+                            </tr>
+                            <tr>
+                                <td>描述</td>
+                                <td><input v-model="dictData.d" name="d" type="text" class="form-control" /></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal"> 关闭  </button>
+                    <button type="button" class="btn btn-primary" v-on:click="adddict(1)">确认提交</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="modal-addPage" class="modal fade modal-form">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" v-cloak>添加{{current.Description}}</h4>
+                </div>
+                <div class="modal-body">
+                    <form id="form_add" role="form" method="POST">
+                        <table class="table table-bordered">
+                            <tbody>
+                            <input v-model="currentData.Key" name="k" type="hidden" class="form-control"/>
+                            <tr>
+                                <td v-cloak>{{current.Description}}</td>
+                                <td><input v-model="currentData.newk" name="newk" type="text" class="form-control" /></td>
+                            </tr>
+                            <tr>
+                                <td>描述</td>
+                                <td><input v-model="currentData.d" name="d" type="text" class="form-control" /></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal"> 关闭  </button>
+                    <button type="button" class="btn btn-primary" v-on:click="addedit(null,1)">确认提交</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    var vueWhiteList = new Vue({
+        el: '#dict_list',
+        data: {
+            List: <<< .List >>>,
+            queryData: {},
+            DictList:<<< .DictList >>>,
+            current:<<< .Current >>>,
+            url:"/system/savedictvalue",
+            dict_url:"/system/adddict",
+            delete_url: '/system/deldictvalue',
+            allSelect: false,
+            selected: [],
+            currentData:{},
+            dictData:{},
+            temp:null
+        },
+        methods: {
+            selectAll: function () {
+                if (this.allSelect) {
+                    this.selected = [];
+                    for (var i in this.List) {
+                        this.selected.push(this.List[i].k);
+                    }
+                } else {
+                    this.selected = [];
+                }
+            },
+            selectOne: function () {
+                if (this.List.length != this.selected.length) {
+                    this.allSelect = false;
+                } else {
+                    this.allSelect = true;
+                }
+            },
+            delSelect: function () {
+                var ids = this.selected;
+                if (ids.length) {
+                    ajaxDev(this.delete_url, {type:this.current.Key,ids: ids}, '确定要删除选中的'+this.current.Description+'？');
+                } else {
+                    alert('请先选择数据');
+                }
+            },
+            adddict:function( post ){
+                if(post){
+                    ajaxDev(this.dict_url, this.dictData, '');
+                }else{
+                    $('#modal-addDictPage').modal('show')
+                }
+            },
+            addedit:function( index,post ){
+                if(post){
+                    this.currentData.type = this.current.Key;
+                    ajaxDev(this.url, this.currentData, '');
+                }else{
+                    if( index!=null ){
+                        this.currentData = $.extend( {},this.List[index]);
+                        this.currentData.newk = this.currentData.Key;
+                    }else{
+                        this.currentData = {};
+                    }
+                    $('#modal-addPage').modal('show')
+                }
+            },
+            filter:function(){
+                if( !this.temp ){
+                    this.temp = this.List;
+                }
+                if( this.queryData && this.queryData.k !="" ){
+                    var k = this.queryData.k;
+                    this.List = $.extend( [],this.temp).filter(function (item) {
+                        var filet_id = ""+ item.k;
+                        return filet_id.match( k );
+                    })
+                }else{
+                    this.List = this.temp ;
+                }
+            },
+            formatDate: function (time) {
+                var time = new Date(time * 1000);
+                var y = time.getFullYear();//年
+                var m = time.getMonth() + 1;//月
+                var d = time.getDate();//日
+                var h = time.getHours();//时
+                var mm = time.getMinutes();//分
+                var s = time.getSeconds();//秒
+                return y + "-" + m + "-" + d + " " + h + ":" + mm + ":" + s
+            }
+        }
+    });
+</script>

@@ -1,0 +1,140 @@
+<div id="role_list">  
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+            <h1>
+                角色列表
+                <small>角色管理</small>
+            </h1>
+            <ol class="breadcrumb">
+                <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
+                <li><a href="#">角色管理</a></li>
+                <li class="active">角色列表</li>
+            </ol>
+        </section>
+
+        <!-- Main content -->
+        <section class="content">
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="box">
+                        <div class="box-header">
+                            <div class="user-add text-right">
+                                <a class="btn btn-info" v-on:click="addedit(0)">创建新角色<i class="fa fa-plus"></i></a>
+                            </div>
+                        </div>
+                        <!-- /.box-header -->
+                        <div class="box-body table-responsive no-padding">
+                            <table class="table table-hover">
+                                <tr>
+                                    <th>角色名称</th>
+                                    <th>描述</th>
+                                    <th>用户数量</th>
+                                    <th>状态</th>
+                                    <th>操作</th>
+                                </tr>
+                                <tr v-for="role in roleList">
+                                    <td>{{ role.RoleName }}</td>
+                                    <td>{{ role.Description }}</td>
+                                    <td>{{ role.Count }}</td>
+                                    <td><a class="label" v-bind:class="[role.Status == '1'?'label-success':'label-default']">{{ role.Status == '1' ? '正常' :'禁用' }}</td>
+                                    <td>
+                                        <a class="editUser btn btn-xs btn-info text-fill" v-bind:href="'/role/viewrole?role_id='+role.RoleId" data-toggle="modal" data-target="#modal">查看<i class="fa fa-street-view"></i></a>
+                                        <a class="btn btn-warning btn-xs text-fill"  type="button" v-on:click="addedit(role.RoleId)">修改</a>
+                                        <a class="editUser btn btn-xs btn-warning text-fill" v-bind:href="'/role/access?role_id='+role.RoleId">权限设置<i class="fa fa-edit"></i></a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <!-- /.box-body -->
+                    </div>
+                    <!-- /.box -->
+                </div>
+            </div>
+
+        </section>
+        <!-- /.content -->
+    </div>
+    <!-- ./wrapper -->
+    <div id="modal" class="modal fade modal-form">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-Page" class="modal fade modal-form">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">创建/更新角色信息</h4>
+                </div>
+                <div class="modal-body">
+                    <form id="form_add" action="/role/save" method="POST">
+                        <table class="table table-bordered">
+                            <tbody>
+                                <tr>
+                                    <td>角色名称</td>
+                                    <td><input v-model='currentRole.RoleName' name="role_name" id="edit_rolename" type="text" class="form-control"></td>
+                                </tr>
+                                <tr>
+                                    <td>角色描述</td>
+                                    <td><input v-model='currentRole.Description' name="description" id="edit_description" type="text" class="form-control"></td>
+                                </tr>
+                            <td>状态</td>
+                            <td>
+                                <label class="radio-inline">
+                                    <input v-model='currentRole.Status' class="text-fill" name="status" type="radio" id="edit_status_1" value="1"> 正常
+                                </label>
+                                <label class="radio-inline">
+                                    <input v-model='currentRole.Status' class="text-fill" name="status" type="radio" id="edit_status_0" value="0"> 冻结
+                                </label>
+                            </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <input v-model='currentRole.RoleId' type="hidden" name="role_id" value="" id="edit_role_id" />
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary" v-on:click='submitForm'>确认提交</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var vueRole = new Vue({
+        el: '#role_list',
+        data: {
+            roleList: <<<.RoleData>>>,
+            currentRole:{}
+        },
+        methods:{
+            addedit:function( id ){
+                if( id ){
+                    
+                    var data = $.extend( {},this.roleList[id] );
+                    this.currentRole = data;
+                }else{
+                    this.currentRole = {status:1};
+                }
+                $('#modal-Page').modal('show')
+            },
+            submitForm:function(){
+                var query = $("#form_add").serialize();
+                var url = $("#form_add").attr("action");
+                ajaxDev(url,query,'');
+            }
+        }
+    });
+    $(function(){
+        $('body').on('hidden.bs.modal', '.modal', function() {
+            $(this).removeData('bs.modal');
+        });
+    })
+</script>

@@ -1,0 +1,176 @@
+<!-- Content Wrapper. Contains page content -->
+<div id='module_list'>
+    <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+            <h1>
+                功能列表
+                <small>模块管理</small>
+            </h1>
+            <ol class="breadcrumb">
+                <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
+                <li><a href="#">模块管理</a></li>
+                <li class="active">功能列表</li>
+            </ol>
+        </section>
+
+        <!-- Main content -->
+        <section class="content">
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="box">
+                        <div class="box-header">
+                            <div class="user-add text-right">
+                                <a class="btn btn-info addedit" v-on:click="addedit(0,0)">新增模块<i class="fa fa-plus"></i></a>
+                            </div>
+                        </div>
+                        <!-- /.box-header -->
+                        <div class="box-body table-responsive no-padding">
+                            <table class="table table-hover">
+                                <tr>
+                                    <th>标题</th>
+                                    <th>模块名称</th>
+                                    <th>方法名称</th>
+                                    <th>类型</th>
+                                    <th>显示</th>
+                                    <th>状 态</th>
+                                    <th>操作</th>
+                                </tr>
+                                <template v-for="module in moduleList" v-cloak>
+                                    <tr class="text-yellow">
+                                        <td>{{ module.Title }}</td>
+                                        <td>{{ module.ModuleName }}</td>
+                                        <td>{{ module.MethodName }}</td>
+                                        <td><a class="label" v-bind:class="[module.Type == '1'?'label-success':'label-default']">{{ module.Type == '1' ? '模块' :'方法' }}</td>
+                                        <td><a class="label" v-bind:class="[module.Show == '1'?'label-success':'label-default']">{{ module.Show == '1' ? '显示' :'隐藏' }}</td>
+                                        <td><a class="label" v-bind:class="[module.Status == '1'?'label-success':'label-default']">{{ module.Status == '1' ? '正常' :'禁用' }}</td>
+                                        <td><a class="btn btn-xs btn-warning addedit"  v-on:click="addedit(module.ModuleId,0)">修改</a></td>
+                                    </tr>
+                                    <tr v-for="child in module.Children">
+                                        <td>{{ child.Title }}</td>
+                                        <td>{{ child.ModuleName }}</td>
+                                        <td>{{ child.MethodName }}</td>
+                                        <td><a class="label" v-bind:class="[child.Type == '1'?'label-success':'label-default']">{{ child.Type == '1' ? '模块' :'方法' }}</td>
+                                        <td><a class="label" v-bind:class="[child.Show == '1'?'label-success':'label-default']">{{ child.Show == '1' ? '显示' :'隐藏' }}</td>
+                                        <td><a class="label" v-bind:class="[child.Status == '1'?'label-success':'label-default']">{{ child.Status == '1' ? '正常' :'禁用' }}</td>
+                                        <td><a class="btn btn-xs btn-warning addedit" v-on:click="addedit(module.ModuleId,child.ModuleId)">修改</a></td>
+                                    </tr>
+                                </template>
+                            </table>
+                        </div>
+                        <!-- /.box-body -->
+                    </div>
+                    <!-- /.box -->
+                </div>
+            </div>
+
+        </section>
+        <!-- /.content -->
+    </div>
+
+    <!-- ./wrapper -->
+    <div id="modal-addPage" class="modal fade modal-form">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">新增/编辑模块</h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal" id="form_add" action="/module/save" method="POST">
+                        <table class="table table-bordered">
+                            <tbody>
+                                <tr>
+                                    <td>标题</td>
+                                    <td><input  v-model="currentModule.Title" id="title" name="title" type="text" class="form-control" placeholder="Enter title"></td>
+                                </tr>
+                                <tr>
+                                    <td>父模块</td>
+                                    <td>
+                                        <select v-model="currentModule.ParentId" id="parent_id" name="parent_id" class="form-control">
+                                            <option value="0">根模块</option>
+                                            <option v-for="module in moduleList" v-if="module.ModuleId!=currentModule.ModuleId" v-bind:value="module.ModuleId" v-cloak>{{module.Title}}</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>模块名称</td>
+                                    <td><input v-model="currentModule.ModuleName" id="module_name" name="module_name" type="text" class="form-control" placeholder="Enter module name"></td>
+                                </tr>
+                                <tr>
+                                    <td>方法名</td>
+                                    <td><input v-model="currentModule.MethodName" id="method_name" name="method_name" type="text" class="form-control" placeholder="Enter method_name"></td>
+                                </tr>
+                                <tr>
+                                    <td>类型</td>
+                                    <td>
+                                        <select v-model="currentModule.Type" id="type" name="type" class="form-control">
+                                            <option value="1">模块</option>
+                                            <option value="2">方法</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>显示在菜单栏</td>
+                                    <td>
+                                        <label class="radio-inline">
+                                            <input v-model="currentModule.Show" id="show1" name="show" type="radio" value="1"> 是
+                                        </label>
+                                        <label class="radio-inline">
+                                            <input v-model="currentModule.Show" id="show0" name="show" type="radio" value="0"> 否
+                                        </label> 
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>排序</td>
+                                    <td><input v-model="currentModule.Sort" id="sort" name="sort" type="number" class="form-control" placeholder="Enter orders"></td>
+                                </tr>
+                                <tr>
+                                    <td>状态</td>
+                                    <td>
+                                        <select v-model="currentModule.Status" id="status" name="status" class="form-control">
+                                            <option value="1">正常</option>
+                                            <option value="0">弃用</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                            <input v-model="currentModule.ModuleId" id="id" name="id" type="hidden">
+                            </tbody>
+                        </table>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="submit" class="btn btn-primary btn-info pull-right" v-on:click="submitForm">确认提交</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var vueModule = new Vue({
+        el: '#module_list',
+        data: {
+            moduleList: <<<.ModuleData>>>,
+            currentModule:{}
+        },
+        methods:{
+            addedit:function(pid,mid){
+                if(pid && mid){
+                    this.currentModule = $.extend( {},this.moduleList[pid]['Children'][mid]);//使用新对象，以防界面数据被更新
+                }else if(pid){
+                    this.currentModule = $.extend( {},this.moduleList[pid]);
+                }else{
+                    this.currentModule = {parent_id:0,type:1,status:1};
+                }
+                $('#modal-addPage').modal('show')
+            },
+            submitForm:function(){
+                var query = $("#form_add").serialize();
+                var url = $("#form_add").attr("action");
+                ajaxDev(url,query,'');
+            }
+        }
+    });
+</script>

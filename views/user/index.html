@@ -1,0 +1,215 @@
+<div id="sys_user_list">  
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+            <h1>
+                用户列表
+                <small>系统用户管理</small>
+            </h1>
+            <ol class="breadcrumb">
+                <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
+                <li><a href="#">系统用户管理</a></li>
+                <li class="active">用户列表</li>
+            </ol>
+        </section>
+
+        <!-- Main content -->
+        <section class="content">
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="box">
+                        <div class="box-header">
+                            <form class="form-inline" role="form" method="post">
+                                <div class="form-group">
+                                    <label for="uname">用户名:</label>
+                                    <input name="uname" size="45" type="text" class="form-control" id="uname" placeholder="请输入用户名">
+                                </div>
+                                <input type="submit" class="btn btn-info" value="查询"/>
+                                <a style="float:right;margin-right:40px" class="btn btn-info" v-on:click='addedit(null)'>新增用户<i class="fa fa-plus"></i></a>
+                            </form>
+                        </div>
+                        <!-- /.box-header -->
+                        <div class="box-body table-responsive no-padding">
+                            <table class="table table-hover">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>账号名称</th>
+                                    <th>邮箱</th>
+                                    <th>昵称</th>
+                                    <th>角色</th>
+                                    <th>状态</th>
+                                    <th>创建时间</th>
+                                    <th>操作</th>
+                                </tr>
+                                <tr v-for="(user,index) in userList" v-cloak>
+                                    <td>{{ user.UserId }}</td>
+                                    <td>{{ user.UserName }}</td>
+                                    <td>{{ user.Email }}</td>
+                                    <td>{{ user.RealName }}</td>
+                                    <td>
+                                        <span class="label label-success" v-bind:class="[roleList[user.RoleId]?'label-success':'label-warning']">{{roleList[user.RoleId]?roleList[user.RoleId].RoleName:'未知角色分组'}}</span>
+                                    </td>
+                                    <td><a class="label" v-bind:class="[user.Status == '1'?'label-success':'label-default']">{{ user.Status == '1' ? '正常' :'禁用' }}</td>
+
+                                    <td>{{ user.Created }}</td>
+                                    <td>
+                                        <button class="btn btn-xs btn-warning text-fill" v-on:click='addedit(index)'>修改</button>
+                                        <button class="btn btn-warning btn-xs" v-on:click="updateStatus(user.UserId,user.Status == '1' ? 0 :1)">{{ user.Status == '0' ? '解禁' :'禁用' }}</button>
+                                        <button class="btn btn-default btn-xs" v-on:click="updatePwd(user.UserId,0)">重置密码</button>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <!-- /.box-body -->
+                        <div class="box-footer clearfix">
+                            <div is="uib-pagination" v-bind:max-size="10" v-bind:boundary-links="true" v-bind:total-items="pagination.totalCounts" 
+                                v-bind:value="pagination" class="pagination-sm no-margin pull-right" previous-text="&lsaquo;" next-text="&rsaquo;" 
+                                first-text="&laquo;" last-text="&raquo;"></div>
+                        </div>
+                    </div>
+                    <!-- /.box -->
+                </div>
+            </div>
+
+        </section>
+        <!-- /.content -->
+    </div>
+    <!-- ./wrapper -->
+    <div id="modal-addPage" class="modal fade modal-form">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">新增管理员用户</h4>
+                </div>
+                <div class="modal-body">
+                    <form id="form_add" action="/sysuser/save" method="POST">
+                        <table class="table table-bordered">
+                            <tbody>
+                                <tr v-if='currentUser.create'>
+                                    <td class="input_require">帐号名称</td>
+                                    <td><input v-model='currentUser.UserName' name="username" type="text" class="form-control" placeholder="Enter username"></td>
+                                </tr>
+                                <tr v-if='currentUser.create'>
+                                    <td class="input_require">账号密码</td>
+                                    <td><input v-model='currentUser.password' name="password" type="password" class="form-control" placeholder="Enter password"></td>
+                                </tr>
+                                <tr v-if='currentUser.create'>
+                                    <td class="input_require">再次输入新密码</td>
+                                    <td><input v-model='currentUser.pwdcheck' name="pwdcheck" type="password" class="form-control" placeholder="Enter password"/></td>
+                                </tr> 
+                                <tr>
+                                    <td class="input_require">邮箱</td>
+                                    <td><input v-model='currentUser.Email' name="email" type="email" class="form-control" placeholder="Enter email"></td>
+                                </tr>
+                                <tr>
+                                    <td class="input_require">状态</td>
+                                    <td>
+                                        <select v-model='currentUser.Status' name="status" class="form-control">
+                                            <option value="1">启用</option>
+                                            <option value="0">禁用</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>真实姓名</td>
+                                    <td><input v-model='currentUser.RealName' name="realname" type="text" class="form-control" placeholder="Enter realname"></td>
+                                </tr>
+                                <tr>
+                                    <td>角色</td>
+                                    <td>
+                                        <select v-model='currentUser.RoleId' name="role_id" class="form-control">
+                                            <option v-for='(role,role_id) in roleList' v-bind:value="role_id" v-cloak>{{ role.RoleName }}</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                            <input v-model="currentUser.UserId" name="user_id" hidden="user_id" type="text">
+                            </tbody>
+                        </table>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="submit" class="btn btn-primary btn-info pull-right" v-on:click="submitForm">确认提交</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="modal-resetPwd" class="modal fade modal-form">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">重置密码</h4>
+                </div>
+                <div class="modal-body">
+                    <form id="form_resetPwd" role="form" method="POST">
+                        <table class="table table-bordered">
+                            <tbody>
+                            <input v-model="currentSetPwd.user_id" name="user_id" type="hidden" class="form-control"/>
+                            <tr>
+                                <td>新密码</td>
+                                <td><input v-model="currentSetPwd.password" name="password" type="password" class="form-control" /></td>
+                            </tr>
+                            <tr>
+                                <td>再次输入新密码</td>
+                                <td><input v-model="currentSetPwd.pwdcheck" name="pwdcheck" type="password" class="form-control" /></td>
+                            </tr>                           
+                            </tbody>
+                        </table>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal"> 关闭  </button>
+                    <button type="button" class="btn btn-primary" v-on:click="updatePwd(currentSetPwd.user_id,1)">确认提交</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<script type="text/javascript" src="/static/plugins/VueJs/pagination/index.js"></script>
+<script type="text/javascript">
+    var vueUser = new Vue({
+        el: '#sys_user_list',
+        data: {
+            roleList: <<< .RoleList >>>,
+            pagination:<<<.Pagination>>>,
+            userList: <<<.UserList>>>,
+            status_url:"/sysuser/updatestatus",
+            pwd_url:"/sysuser/resetpasswd",
+            currentSetPwd:{},
+            currentUser: {}
+        },
+        methods: {
+            addedit: function (id) {
+                if ( id!==null ) {
+                    var data = $.extend({}, this.userList[id]);
+                    this.currentUser = data;
+                } else {
+                    this.currentUser = {status: 1,create:1};
+                }
+                $('#modal-addPage').modal('show')
+            },
+            submitForm: function () {
+                var query = $("#form_add").serialize();
+                var url = $("#form_add").attr("action");
+                ajaxDev(url, query, '');
+            },
+            updateStatus:function(user_id,status){
+                var str = status == 1 ? '解禁':'禁用';
+                ajaxDev(this.status_url, {user_id:user_id,status:status}, '确定要'+ str +'该用户?');
+            },
+            updatePwd:function(user_id,post){
+                this.currentSetPwd.user_id = user_id;
+                if( !post ){
+                    $('#modal-resetPwd').modal('show');
+                }else{
+                    ajaxDev(this.pwd_url, this.currentSetPwd, '');
+                }
+            }
+        }
+    });
+</script>

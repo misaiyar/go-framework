@@ -1,0 +1,20 @@
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+    <h4 class="modal-title"><<< .RoleName >>>-用户列表</h4>
+</div>
+
+<div class="modal-body">
+    <ul class="row">
+        <<< range $index, $elem := .UserList >>>
+        <li class="col-lg-4" style="margin-bottom: 6px;">
+            <div class="label label-info text-ellipsis" style="width:100%;text-align:left;" title="<<<$index>>>(<<<$elem>>>)">
+                <<<$index>>>(<<<$elem>>>)
+            </div>
+        </li>
+        <<< end >>>
+    </ul>
+</div>
+
+<div class="modal-footer">
+    <button type="button" class="btn btn-default" data-dismiss="modal"> 关闭  </button>
+</div>

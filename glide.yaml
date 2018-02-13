@@ -1,0 +1,9 @@
+package: project
+import:
+- package: github.com/astaxie/beego
+  subpackages:
+  - httplib
+  - logs
+  - orm
+- package: github.com/go-sql-driver/mysql
+- package: gopkg.in/ldap.v2
